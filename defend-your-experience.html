@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Defend Your Experience</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#131C2E;
+    --ink-soft:#2A3648;
+    --paper:#F5F5F2;
+    --surface:#FFFFFF;
+    --slate:#5B6472;
+    --slate-light:#8A93A2;
+    --line:#DBDDE1;
+    --line-soft:#EAEBEA;
+    --accent:#2F5D50;
+    --accent-soft:#E4EDE9;
+    --accent-bright:#3C7A67;
+    --warn:#A24E3D;
+    --warn-soft:#F3E5E0;
+    --gold:#93752E;
+    --gold-soft:#F1E9D6;
+    --shadow: 0 1px 2px rgba(19,28,46,0.06), 0 8px 24px rgba(19,28,46,0.06);
+    --radius: 3px;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'IBM Plex Mono', 'SF Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px);
+    background-size: 100% 42px;
+    opacity:.35;
+    pointer-events:none;
+    z-index:0;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+
+  a{color:inherit;}
+  button{font-family:var(--sans); cursor:pointer;}
+  ::selection{background:var(--accent); color:#fff;}
+  ::-webkit-scrollbar{width:10px; height:10px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+
+  /* ---------- Shell ---------- */
+  #app{position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column;}
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; border-bottom:1px solid var(--line);
+    background:rgba(245,245,242,.92); backdrop-filter:blur(6px);
+    position:sticky; top:0; z-index:20;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:30px; height:30px; border:1.5px solid var(--ink); border-radius:2px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-weight:700; font-size:15px; flex-shrink:0;
+  }
+  .brand-text{display:flex; flex-direction:column; line-height:1.1;}
+  .brand-title{font-family:var(--serif); font-weight:600; font-size:16.5px; letter-spacing:.01em;}
+  .brand-sub{font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--slate); text-transform:uppercase; margin-top:2px;}
+
+  .tabs{display:flex; gap:2px; background:var(--line-soft); padding:3px; border-radius:4px;}
+  .tab{
+    padding:8px 16px; font-size:13px; font-weight:600; color:var(--slate);
+    border:none; background:transparent; border-radius:3px; transition:all .15s;
+  }
+  .tab.active{background:var(--surface); color:var(--ink); box-shadow:var(--shadow);}
+  .tab:disabled{opacity:.35; cursor:not-allowed;}
+
+  .session-btns{display:flex; gap:8px; align-items:center;}
+  .icon-btn{
+    width:34px; height:34px; border:1px solid var(--line); background:var(--surface);
+    border-radius:3px; display:flex; align-items:center; justify-content:center;
+    color:var(--slate); transition:.15s;
+  }
+  .icon-btn:hover{border-color:var(--ink); color:var(--ink);}
+
+  main{flex:1; display:flex; flex-direction:column;}
+  .view{display:none; flex:1; flex-direction:column;}
+  .view.active{display:flex;}
+
+  .container{max-width:1120px; margin:0 auto; width:100%; padding:0 32px;}
+
+  /* ---------- Upload View ---------- */
+  .hero{padding:64px 0 28px;}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--accent);}
+  .hero h1{
+    font-family:var(--serif); font-size:44px; line-height:1.12; font-weight:600; margin:0 0 18px;
+    max-width:760px; letter-spacing:-.01em;
+  }
+  .hero p.lede{font-size:16.5px; line-height:1.65; color:var(--ink-soft); max-width:600px; margin:0 0 6px;}
+  .hero .lede-strong{color:var(--ink); font-weight:600;}
+
+  .upload-zone{
+    margin-top:36px; border:1.5px dashed var(--line); border-radius:4px; background:var(--surface);
+    padding:48px 36px; text-align:center; transition:.18s; position:relative;
+  }
+  .upload-zone.dragover{border-color:var(--accent); background:var(--accent-soft);}
+  .upload-icon{
+    width:52px; height:52px; margin:0 auto 18px; border:1.5px solid var(--ink); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .upload-title{font-family:var(--serif); font-size:20px; font-weight:600; margin-bottom:8px;}
+  .upload-sub{font-size:13.5px; color:var(--slate); margin-bottom:22px;}
+  .upload-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  #fileInput{display:none;}
+
+  .btn{
+    padding:11px 22px; border-radius:3px; font-size:13.5px; font-weight:600; border:1px solid var(--ink);
+    background:var(--ink); color:#fff; transition:.15s; letter-spacing:.01em;
+  }
+  .btn:hover{background:var(--ink-soft);}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+  .btn.secondary{background:transparent; color:var(--ink); border-color:var(--line);}
+  .btn.secondary:hover{border-color:var(--ink);}
+  .btn.accent{background:var(--accent); border-color:var(--accent);}
+  .btn.accent:hover{background:var(--accent-bright);}
+  .btn.small{padding:7px 14px; font-size:12.5px;}
+  .btn.danger-outline{background:transparent; color:var(--warn); border-color:var(--warn-soft);}
+  .btn.danger-outline:hover{background:var(--warn-soft);}
+
+  .paste-area{margin-top:14px; display:none;}
+  .paste-area.show{display:block;}
+  .paste-area textarea{
+    width:100%; min-height:180px; border:1px solid var(--line); border-radius:3px; padding:14px;
+    font-family:var(--sans); font-size:13.5px; line-height:1.6; resize:vertical; background:var(--surface);
+  }
+  .paste-area textarea:focus{outline:none; border-color:var(--accent);}
+
+  .setup-row{display:flex; gap:14px; margin-top:26px; flex-wrap:wrap;}
+  .setup-card{
+    flex:1; min-width:220px; border:1px solid var(--line); border-radius:3px; padding:16px 18px; background:var(--surface);
+  }
+  .setup-card .label{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--slate); margin-bottom:10px;}
+  .chip-row{display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{
+    padding:7px 12px; border:1px solid var(--line); border-radius:20px; font-size:12.5px; font-weight:500;
+    background:var(--surface); color:var(--ink-soft); transition:.15s;
+  }
+  .chip.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+
+  .past-sessions{margin-top:40px;}
+  .past-sessions h3{font-family:var(--serif); font-size:16px; margin-bottom:12px; font-weight:600;}
+  .session-row{
+    display:flex; align-items:center; justify-content:space-between; padding:12px 16px;
+    border:1px solid var(--line); border-radius:3px; margin-bottom:8px; background:var(--surface); font-size:13px;
+  }
+  .session-row .meta{color:var(--slate); font-family:var(--mono); font-size:11.5px;}
+  .empty-note{font-size:13px; color:var(--slate-light); font-style:italic;}
+
+  /* ---------- Extracting overlay ---------- */
+  .loading-panel{
+    text-align:center; padding:80px 20px; max-width:480px; margin:0 auto;
+  }
+  .loading-panel .stamp{
+    width:64px; height:64px; border:2px solid var(--accent); border-radius:50%; margin:0 auto 24px;
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .loading-panel .stamp::before{
+    content:""; position:absolute; inset:-2px; border-radius:50%; border:2px solid transparent;
+    border-top-color:var(--accent); animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-panel h3{font-family:var(--serif); font-size:19px; margin-bottom:8px;}
+  .loading-panel p{font-size:13px; color:var(--slate);}
+
+  /* ---------- Interview View layout ---------- */
+  .interview-shell{display:grid; grid-template-columns:300px 1fr; flex:1; min-height:0;}
+  @media (max-width:900px){.interview-shell{grid-template-columns:1fr;}}
+
+  .docket{
+    border-right:1px solid var(--line); background:rgba(255,255,255,.55); padding:22px 18px;
+    overflow-y:auto; max-height:calc(100vh - 66px);
+  }
+  @media (max-width:900px){.docket{display:none;}}
+  .docket-head{margin-bottom:18px;}
+  .docket-head .label{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--slate); margin-bottom:10px;}
+
+  .gauge-wrap{display:flex; align-items:center; gap:14px; padding:14px; border:1px solid var(--line); border-radius:3px; background:var(--surface); margin-bottom:20px;}
+  .gauge{width:56px; height:56px; flex-shrink:0;}
+  .gauge-num{font-family:var(--mono); font-size:20px; font-weight:600;}
+  .gauge-label{font-size:11px; color:var(--slate); margin-top:1px;}
+
+  .exhibit-list{display:flex; flex-direction:column; gap:6px;}
+  .exhibit{
+    border:1px solid var(--line); border-radius:3px; padding:10px 12px; background:var(--surface);
+    cursor:default; transition:.15s; position:relative;
+  }
+  .exhibit.current{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink);}
+  .exhibit-tag{font-family:var(--mono); font-size:10px; color:var(--slate-light); letter-spacing:.05em; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;}
+  .exhibit-text{font-size:12.5px; line-height:1.4; color:var(--ink-soft);}
+  .status-dot{width:7px; height:7px; border-radius:50%; flex-shrink:0;}
+  .status-dot.pending{background:var(--line);}
+  .status-dot.active{background:var(--gold); animation:pulse 1.4s ease-in-out infinite;}
+  .status-dot.solid{background:var(--accent);}
+  .status-dot.weak{background:var(--warn);}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.4;}}
+
+  .end-interview-cta{margin-top:20px; width:100%;}
+
+  /* Chat column */
+  .chat-col{display:flex; flex-direction:column; min-height:0;}
+  .chat-progress{padding:14px 28px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px;}
+  .progress-bar{flex:1; height:5px; background:var(--line-soft); border-radius:3px; overflow:hidden;}
+  .progress-fill{height:100%; background:var(--accent); width:0%; transition:width .4s ease;}
+  .progress-text{font-family:var(--mono); font-size:11px; color:var(--slate); white-space:nowrap;}
+
+  .chat-scroll{flex:1; overflow-y:auto; padding:28px 32px 10px;}
+  .chat-msg{max-width:640px; margin-bottom:22px; animation:rise .3s ease;}
+  @keyframes rise{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .chat-msg.interviewer{margin-right:auto;}
+  .chat-msg.candidate{margin-left:auto;}
+  .msg-tag{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--slate-light); margin-bottom:6px;}
+  .chat-msg.candidate .msg-tag{text-align:right;}
+  .msg-bubble{
+    padding:14px 16px; border-radius:3px; font-size:14.5px; line-height:1.6;
+  }
+  .interviewer .msg-bubble{background:var(--surface); border:1px solid var(--line); border-left:2.5px solid var(--ink);}
+  .candidate .msg-bubble{background:var(--ink); color:#fff;}
+  .note-flag{
+    margin-top:6px; font-size:11.5px; color:var(--gold); display:flex; gap:6px; align-items:flex-start;
+  }
+
+  .system-note{
+    text-align:center; font-family:var(--mono); font-size:11px; color:var(--slate-light);
+    letter-spacing:.04em; margin:18px 0; text-transform:uppercase;
+  }
+
+  .typing-indicator{display:flex; gap:4px; padding:14px 16px;}
+  .typing-indicator span{width:6px; height:6px; border-radius:50%; background:var(--slate-light); animation:bounce 1.2s infinite;}
+  .typing-indicator span:nth-child(2){animation-delay:.15s;}
+  .typing-indicator span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0); opacity:.5;} 30%{transform:translateY(-4px); opacity:1;}}
+
+  .error-banner{
+    margin:0 32px 14px; padding:12px 16px; border:1px solid var(--warn-soft); background:var(--warn-soft);
+    border-radius:3px; font-size:13px; color:var(--warn); display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+
+  .composer{border-top:1px solid var(--line); padding:16px 32px 22px; background:rgba(255,255,255,.6);}
+  .composer-inner{display:flex; gap:10px; align-items:flex-end; max-width:760px;}
+  .composer textarea{
+    flex:1; border:1px solid var(--line); border-radius:3px; padding:12px 14px; font-family:var(--sans);
+    font-size:14px; line-height:1.5; resize:none; max-height:160px; background:var(--surface);
+  }
+  .composer textarea:focus{outline:none; border-color:var(--accent);}
+  .composer-hint{font-size:11px; color:var(--slate-light); margin-top:6px;}
+
+  /* ---------- Report view ---------- */
+  .report-hero{padding:52px 0 24px; text-align:center;}
+  .verdict-score{
+    width:150px; height:150px; margin:0 auto 20px; position:relative; display:flex; align-items:center; justify-content:center;
+  }
+  .verdict-score .num{font-family:var(--serif); font-size:44px; font-weight:600;}
+  .verdict-score .denom{font-family:var(--mono); font-size:13px; color:var(--slate);}
+  .report-hero h2{font-family:var(--serif); font-size:26px; margin:0 0 8px;}
+  .report-hero p{color:var(--slate); font-size:14px; max-width:500px; margin:0 auto;}
+
+  .report-summary-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:32px 0;}
+  @media (max-width:700px){.report-summary-grid{grid-template-columns:1fr;}}
+  .summary-card{border:1px solid var(--line); border-radius:3px; padding:18px; background:var(--surface); text-align:center;}
+  .summary-card .n{font-family:var(--mono); font-size:26px; font-weight:600;}
+  .summary-card .l{font-size:12px; color:var(--slate); margin-top:4px;}
+  .summary-card.solid .n{color:var(--accent);}
+  .summary-card.weak .n{color:var(--warn);}
+  .summary-card.pending .n{color:var(--slate);}
+
+  .report-section{margin:36px 0;}
+  .report-section h3{font-family:var(--serif); font-size:18px; margin-bottom:14px; display:flex; align-items:center; gap:10px;}
+  .report-section h3::after{content:""; flex:1; height:1px; background:var(--line);}
+
+  .claim-card{
+    border:1px solid var(--line); border-radius:3px; padding:18px 20px; margin-bottom:12px; background:var(--surface);
+  }
+  .claim-card-head{display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:10px;}
+  .claim-card-head .txt{font-size:14.5px; font-weight:600; line-height:1.4;}
+  .verdict-badge{
+    font-family:var(--mono); font-size:10.5px; padding:4px 9px; border-radius:20px; white-space:nowrap; letter-spacing:.03em;
+  }
+  .verdict-badge.well-defended{background:var(--accent-soft); color:var(--accent);}
+  .verdict-badge.needs-work{background:var(--gold-soft); color:var(--gold);}
+  .verdict-badge.undefended{background:var(--warn-soft); color:var(--warn);}
+  .claim-feedback{font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin-bottom:10px;}
+  .stronger-version{
+    background:var(--paper); border-left:2.5px solid var(--accent); padding:10px 14px; font-size:13px;
+    line-height:1.55; border-radius:0 3px 3px 0; color:var(--ink-soft);
+  }
+  .stronger-version .lab{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin-bottom:4px; display:block;}
+
+  .report-actions{display:flex; gap:10px; justify-content:center; margin:40px 0 60px; flex-wrap:wrap;}
+
+  /* Empty state */
+  .empty-state{padding:70px 20px; text-align:center; color:var(--slate);}
+  .empty-state h3{font-family:var(--serif); color:var(--ink); font-size:18px; margin-bottom:8px;}
+  .empty-state p{font-size:13.5px; max-width:380px; margin:0 auto;}
+
+  footer.app-footer{padding:20px 32px; text-align:center; font-size:11.5px; color:var(--slate-light); font-family:var(--mono);}
+
+  @media (max-width:640px){
+    .hero h1{font-size:32px;}
+    .topbar{padding:14px 16px;}
+    .container{padding:0 16px;}
+    .chat-scroll{padding:20px 16px;}
+    .composer{padding:14px 16px 18px;}
+    .tabs .tab span.full{display:none;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">DX</div>
+      <div class="brand-text">
+        <div class="brand-title">Defend Your Experience</div>
+        <div class="brand-sub">Case Preparation</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="upload" id="tabUpload">Case File</button>
+      <button class="tab" data-view="interview" id="tabInterview" disabled>Cross-Examination</button>
+      <button class="tab" data-view="report" id="tabReport" disabled>Verdict</button>
+    </div>
+    <div class="session-btns">
+      <button class="icon-btn" id="newSessionBtn" title="Start new case">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ===================== UPLOAD VIEW ===================== -->
+    <section class="view active" id="view-upload">
+      <div class="container">
+        <div class="hero">
+          <div class="eyebrow">Not a resume review</div>
+          <h1>Anyone can write a claim. <br>Can you defend it under questioning?</h1>
+          <p class="lede">Upload what you've written about yourself — a resume, LinkedIn profile, project writeup,
+            or performance review. <span class="lede-strong">We'll extract every claim you make and press you on each one</span>,
+            the way a skeptical interviewer will. The goal isn't a better document. It's a candidate who doesn't flinch.</p>
+        </div>
+
+        <div class="upload-zone" id="dropZone">
+          <div class="upload-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M12 4l-4 4M12 4l4 4"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+          </div>
+          <div class="upload-title">Drop your document here</div>
+          <div class="upload-sub">.txt or .md files, or paste text directly &mdash; nothing leaves this session except to prepare your questions</div>
+          <div class="upload-actions">
+            <button class="btn" id="chooseFileBtn">Choose a file</button>
+            <button class="btn secondary" id="pasteBtn">Paste text instead</button>
+          </div>
+          <input type="file" id="fileInput" accept=".txt,.md,text/plain">
+          <div class="paste-area" id="pasteArea">
+            <textarea id="pasteText" placeholder="Paste your resume, bio, LinkedIn summary, project description, or performance review here..."></textarea>
+          </div>
+        </div>
+
+        <div class="setup-row">
+          <div class="setup-card">
+            <div class="label">Audience</div>
+            <div class="chip-row" id="audienceChips">
+              <button class="chip active" data-val="Job interview (behavioral/HR round)">Behavioral / HR</button>
+              <button class="chip" data-val="Technical/system design interview">Technical</button>
+              <button class="chip" data-val="Promotion or performance review">Promotion review</button>
+              <button class="chip" data-val="Panel/investor-style grilling">Panel / investor</button>
+            </div>
+          </div>
+          <div class="setup-card">
+            <div class="label">Interviewer intensity</div>
+            <div class="chip-row" id="toughnessChips">
+              <button class="chip" data-val="Friendly but thorough">Friendly</button>
+              <button class="chip active" data-val="Standard, professional pressure">Standard pressure</button>
+              <button class="chip" data-val="Brutal skeptic — poke every hole">Brutal skeptic</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:28px;">
+          <button class="btn accent" id="startBtn" disabled style="width:100%; padding:14px; font-size:14.5px;">Extract claims &amp; begin cross-examination</button>
+        </div>
+
+        <div class="past-sessions">
+          <h3>Case history</h3>
+          <div id="sessionHistoryList"><div class="empty-note">No previous cases yet. Once you finish a session, it will appear here.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== EXTRACTING VIEW ===================== -->
+    <section class="view" id="view-extracting">
+      <div class="loading-panel">
+        <div class="stamp">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" color="#2F5D50"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <h3 id="extractingTitle">Building the case file</h3>
+        <p id="extractingSub">Reading every claim you've made about yourself...</p>
+      </div>
+    </section>
+
+    <!-- ===================== INTERVIEW VIEW ===================== -->
+    <section class="view" id="view-interview">
+      <div class="interview-shell">
+        <aside class="docket">
+          <div class="docket-head">
+            <div class="label">Overall confidence</div>
+            <div class="gauge-wrap">
+              <svg class="gauge" viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" fill="none" stroke="#EAEBEA" stroke-width="6"/>
+                <circle id="gaugeRing" cx="28" cy="28" r="24" fill="none" stroke="#2F5D50" stroke-width="6" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8" transform="rotate(-90 28 28)"/>
+              </svg>
+              <div>
+                <div class="gauge-num" id="gaugeNum">0%</div>
+                <div class="gauge-label">defense-ready</div>
+              </div>
+            </div>
+          </div>
+          <div class="label" style="margin-bottom:10px;">Exhibits (claims under review)</div>
+          <div class="exhibit-list" id="exhibitList"></div>
+          <button class="btn danger-outline small end-interview-cta" id="endInterviewBtn">End &amp; view verdict</button>
+        </aside>
+
+        <div class="chat-col">
+          <div class="chat-progress">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">0 / 0 exhibits examined</div>
+          </div>
+          <div id="errorBanner" class="error-banner" style="display:none;">
+            <span id="errorBannerText"></span>
+            <button class="btn small secondary" id="retryBtn">Retry</button>
+          </div>
+          <div class="chat-scroll" id="chatScroll"></div>
+          <div class="composer">
+            <div class="composer-inner">
+              <textarea id="composerInput" placeholder="Answer as you would in the real interview..." rows="1"></textarea>
+              <button class="btn accent" id="sendBtn">Answer</button>
+            </div>
+            <div class="composer-hint">Enter to send &middot; Shift+Enter for a new line</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== REPORT VIEW ===================== -->
+    <section class="view" id="view-report">
+      <div class="container">
+        <div class="report-hero">
+          <div class="eyebrow" style="justify-content:center;">Defense Report</div>
+          <div class="verdict-score">
+            <svg width="150" height="150" viewBox="0 0 150 150" style="position:absolute; top:0; left:0;">
+              <circle cx="75" cy="75" r="66" fill="none" stroke="#EAEBEA" stroke-width="8"/>
+              <circle id="reportRing" cx="75" cy="75" r="66" fill="none" stroke="#2F5D50" stroke-width="8" stroke-linecap="round" stroke-dasharray="414.7" stroke-dashoffset="414.7" transform="rotate(-90 75 75)"/>
+            </svg>
+            <div style="text-align:center; z-index:1;">
+              <div class="num" id="reportScoreNum">0</div>
+              <div class="denom">/ 100 readiness</div>
+            </div>
+          </div>
+          <h2 id="reportHeadline">Preparing your verdict...</h2>
+          <p id="reportSummary"></p>
+        </div>
+
+        <div class="report-summary-grid">
+          <div class="summary-card solid"><div class="n" id="countSolid">0</div><div class="l">Well-defended</div></div>
+          <div class="summary-card weak"><div class="n" id="countWeak">0</div><div class="l">Needs work</div></div>
+          <div class="summary-card pending"><div class="n" id="countUndefended">0</div><div class="l">Undefended</div></div>
+        </div>
+
+        <div class="report-section">
+          <h3>Exhibit-by-exhibit verdict</h3>
+          <div id="claimReportList"></div>
+        </div>
+
+        <div class="report-actions">
+          <button class="btn accent" id="exportReportBtn">Export report</button>
+          <button class="btn secondary" id="printReportBtn">Print / save as PDF</button>
+          <button class="btn secondary" id="newCaseBtn">Start a new case</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">DEFEND YOUR EXPERIENCE &mdash; PREPARATION IS NOT PERFORMANCE, IT IS REHEARSAL</footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============================================================
+     STATE
+  ============================================================ */
+  const STORAGE_KEY = 'dye_current_session_v1';
+  const HISTORY_KEY = 'dye_session_history_v1';
+  const MODEL = 'claude-sonnet-4-6';
+
+  let state = {
+    resumeText: '',
+    audience: 'Job interview (behavioral/HR round)',
+    toughness: 'Standard, professional pressure',
+    claims: [],           // {id, text, category, riskLevel, riskReason, status, confidence, exchangeCount}
+    transcript: [],       // {role:'interviewer'|'candidate', text, claimId, note}
+    currentClaimId: null,
+    claimsExamined: 0,
+    started: false,
+    finished: false,
+    report: null,
+    createdAt: null
+  };
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){ const parsed = JSON.parse(raw); if(parsed && parsed.started){ state = parsed; return true; } }
+    }catch(e){}
+    return false;
+  }
+  function clearState(){
+    localStorage.removeItem(STORAGE_KEY);
+  }
+  function loadHistory(){
+    try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }catch(e){ return []; }
+  }
+  function pushHistory(entry){
+    const h = loadHistory();
+    h.unshift(entry);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,20)));
+  }
+
+  /* ============================================================
+     API HELPER (with retry / rate-limit fallback)
+  ============================================================ */
+  async function callClaude(messages, systemPrompt, {retries=3, jsonMode=false} = {}){
+    let lastErr = null;
+    for(let attempt=0; attempt<=retries; attempt++){
+      try{
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            model: MODEL,
+            max_tokens: 1500,
+            system: systemPrompt,
+            messages: messages
+          })
+        });
+        if(resp.status === 429 || resp.status === 529 || resp.status === 503){
+          lastErr = new Error('rate_limited');
+          await sleep(900 * Math.pow(2, attempt));
+          continue;
+        }
+        if(!resp.ok){
+          const t = await resp.text().catch(()=> '');
+          throw new Error('API error ' + resp.status + ' ' + t.slice(0,200));
+        }
+        const data = await resp.json();
+        const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
+        let text = textBlocks.join('\n').trim();
+        if(jsonMode){
+          text = text.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+          return JSON.parse(text);
+        }
+        return text;
+      }catch(e){
+        lastErr = e;
+        if(attempt === retries) throw e;
+        await sleep(600 * (attempt+1));
+      }
+    }
+    throw lastErr || new Error('unknown_error');
+  }
+  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+  /* ============================================================
+     DOM refs
+  ============================================================ */
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  const views = {
+    upload: $('#view-upload'),
+    extracting: $('#view-extracting'),
+    interview: $('#view-interview'),
+    report: $('#view-report')
+  };
+  const tabs = { upload: $('#tabUpload'), interview: $('#tabInterview'), report: $('#tabReport') };
+
+  function showView(name){
+    Object.values(views).forEach(v => v.classList.remove('active'));
+    views[name].classList.add('active');
+    Object.entries(tabs).forEach(([k,el])=> el.classList.toggle('active', k===name));
+  }
+
+  tabs.upload.addEventListener('click', ()=> showView('upload'));
+  tabs.interview.addEventListener('click', ()=> { if(state.started) showView('interview'); });
+  tabs.report.addEventListener('click', ()=> { if(state.finished) showView('report'); });
+
+  /* ============================================================
+     UPLOAD VIEW LOGIC
+  ============================================================ */
+  const dropZone = $('#dropZone');
+  const fileInput = $('#fileInput');
+  const pasteBtn = $('#pasteBtn');
+  const pasteArea = $('#pasteArea');
+  const pasteText = $('#pasteText');
+  const chooseFileBtn = $('#chooseFileBtn');
+  const startBtn = $('#startBtn');
+
+  let uploadedText = '';
+
+  chooseFileBtn.addEventListener('click', ()=> fileInput.click());
+  pasteBtn.addEventListener('click', ()=>{
+    pasteArea.classList.toggle('show');
+    if(pasteArea.classList.contains('show')) pasteText.focus();
+  });
+  pasteText.addEventListener('input', ()=>{
+    uploadedText = pasteText.value;
+    checkStartEnabled();
+  });
+
+  ['dragenter','dragover'].forEach(evt=>{
+    dropZone.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.add('dragover'); });
+  });
+  ['dragleave','drop'].forEach(evt=>{
+    dropZone.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.remove('dragover'); });
+  });
+  dropZone.addEventListener('drop', e=>{
+    const file = e.dataTransfer.files[0];
+    if(file) handleFile(file);
+  });
+  fileInput.addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(file) handleFile(file);
+  });
+  function handleFile(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      uploadedText = String(reader.result || '');
+      pasteText.value = uploadedText;
+      pasteArea.classList.add('show');
+      checkStartEnabled();
+    };
+    reader.readAsText(file);
+  }
+  function checkStartEnabled(){
+    startBtn.disabled = uploadedText.trim().length < 40;
+  }
+
+  $$('#audienceChips .chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      $$('#audienceChips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      state.audience = chip.dataset.val;
+    });
+  });
+  $$('#toughnessChips .chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      $$('#toughnessChips .chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      state.toughness = chip.dataset.val;
+    });
+  });
+
+  startBtn.addEventListener('click', beginExtraction);
+
+  function renderSessionHistory(){
+    const hist = loadHistory();
+    const container = $('#sessionHistoryList');
+    if(!hist.length){
+      container.innerHTML = '<div class="empty-note">No previous cases yet. Once you finish a session, it will appear here.</div>';
+      return;
+    }
+    container.innerHTML = hist.map(h => `
+      <div class="session-row">
+        <div>
+          <div style="font-weight:600;">${escapeHtml(h.title || 'Case file')}</div>
+          <div class="meta">${h.date} &middot; ${h.score}/100 readiness &middot; ${h.claimCount} exhibits</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ============================================================
+     CLAIM EXTRACTION
+  ============================================================ */
+  async function beginExtraction(){
+    state.resumeText = uploadedText.trim();
+    state.createdAt = new Date().toISOString();
+    showView('extracting');
+    $('#extractingTitle').textContent = 'Building the case file';
+    $('#extractingSub').textContent = 'Reading every claim you\'ve made about yourself...';
+
+    const sys = `You are a meticulous case-building assistant working for a skeptical interviewer. Extract every meaningful, checkable claim from the candidate's document. A claim is any statement of fact, achievement, responsibility, skill, or result about the candidate themselves.
+
+Respond with ONLY strict JSON — an array of 6 to 14 objects, no markdown fences, no preamble, no trailing text. Each object:
+{
+ "id": "short-kebab-slug",
+ "text": "the claim restated concisely in the candidate's voice, one sentence",
+ "category": one of "achievement","leadership","technical","metric","project","soft-skill",
+ "riskLevel": one of "low","medium","high" (high = vague, unquantified, or unverifiable claims that a skeptical interviewer would target first),
+ "riskReason": "one short sentence on why this is risky, or null if riskLevel is low"
+}
+Prioritize the claims most likely to come up and get challenged in a real interview. Do not invent claims not supported by the text.`;
+
+    try{
+      const claims = await callClaude(
+        [{ role:'user', content: `Here is the document:\n\n${state.resumeText}` }],
+        sys, { jsonMode:true, retries:3 }
+      );
+      state.claims = claims.map(c => ({
+        ...c,
+        status: 'pending',      // pending | active | solid | weak
+        confidence: c.riskLevel === 'high' ? 25 : c.riskLevel === 'medium' ? 45 : 60,
+        exchangeCount: 0
+      }));
+      state.started = true;
+      tabs.interview.disabled = false;
+      saveState();
+      await beginInterview();
+    }catch(e){
+      $('#extractingTitle').textContent = 'The case file hit a snag';
+      $('#extractingSub').innerHTML = 'We couldn\'t reach the reviewer right now (temporary API error). <br><button class="btn small" id="retryExtractBtn" style="margin-top:14px;">Try again</button>';
+      const btn = document.getElementById('retryExtractBtn');
+      if(btn) btn.addEventListener('click', beginExtraction);
+    }
+  }
+
+  /* ============================================================
+     INTERVIEW VIEW LOGIC
+  ============================================================ */
+  const chatScroll = $('#chatScroll');
+  const composerInput = $('#composerInput');
+  const sendBtn = $('#sendBtn');
+  const errorBanner = $('#errorBanner');
+  const errorBannerText = $('#errorBannerText');
+  const retryBtn = $('#retryBtn');
+  let pendingRetryFn = null;
+
+  function renderExhibitList(){
+    const list = $('#exhibitList');
+    list.innerHTML = state.claims.map((c,i)=>{
+      const dot = c.status === 'active' ? 'active' : c.status === 'solid' ? 'solid' : c.status === 'weak' ? 'weak' : 'pending';
+      return `<div class="exhibit ${c.id===state.currentClaimId?'current':''}">
+        <div class="exhibit-tag"><span>EXHIBIT ${String.fromCharCode(65+ (i % 26))}${i>=26?Math.floor(i/26):''}</span><span class="status-dot ${dot}"></span></div>
+        <div class="exhibit-text">${escapeHtml(c.text)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function updateGauge(){
+    const avg = state.claims.length ? Math.round(state.claims.reduce((s,c)=>s+c.confidence,0)/state.claims.length) : 0;
+    $('#gaugeNum').textContent = avg + '%';
+    const circumference = 150.8;
+    const offset = circumference - (circumference * Math.min(avg,100) / 100);
+    $('#gaugeRing').style.strokeDashoffset = offset;
+    const ring = $('#gaugeRing');
+    ring.style.stroke = avg >= 65 ? '#2F5D50' : avg >= 40 ? '#93752E' : '#A24E3D';
+
+    const examined = state.claims.filter(c => c.status !== 'pending').length;
+    $('#progressText').textContent = `${examined} / ${state.claims.length} exhibits examined`;
+    $('#progressFill').style.width = (state.claims.length ? (examined/state.claims.length*100) : 0) + '%';
+  }
+
+  function renderTranscript(){
+    chatScroll.innerHTML = '';
+    state.transcript.forEach(m => appendMessage(m, false));
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+  }
+
+  function appendMessage(m, animate=true){
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-msg ' + (m.role === 'interviewer' ? 'interviewer' : 'candidate');
+    const tag = m.role === 'interviewer' ? 'Interviewer' : 'You';
+    wrap.innerHTML = `<div class="msg-tag">${tag}</div><div class="msg-bubble">${escapeHtml(m.text)}</div>${m.note ? `<div class="note-flag">&#9679; ${escapeHtml(m.note)}</div>` : ''}`;
+    chatScroll.appendChild(wrap);
+    if(animate) chatScroll.scrollTop = chatScroll.scrollHeight;
+  }
+
+  function showTyping(){
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-msg interviewer';
+    wrap.id = 'typingMsg';
+    wrap.innerHTML = `<div class="msg-tag">Interviewer</div><div class="msg-bubble typing-indicator"><span></span><span></span><span></span></div>`;
+    chatScroll.appendChild(wrap);
+    chatScroll.scrollTop = chatScroll.scrollHeight;
+  }
+  function hideTyping(){
+    const el = document.getElementById('typingMsg');
+    if(el) el.remove();
+  }
+
+  function showError(msg, retryFn){
+    errorBannerText.textContent = msg;
+    errorBanner.style.display = 'flex';
+    pendingRetryFn = retryFn;
+  }
+  function hideError(){
+    errorBanner.style.display = 'none';
+    pendingRetryFn = null;
+  }
+  retryBtn.addEventListener('click', ()=>{
+    hideError();
+    if(pendingRetryFn) pendingRetryFn();
+  });
+
+  function pickNextClaim(){
+    const pending = state.claims.filter(c => c.status === 'pending');
+    if(!pending.length) return null;
+    const order = {high:0, medium:1, low:2};
+    pending.sort((a,b) => (order[a.riskLevel]??1) - (order[b.riskLevel]??1));
+    return pending[0];
+  }
+
+  function buildInterviewSystemPrompt(){
+    return `You are a professional interviewer conducting a "${state.audience}" for a candidate, at this intensity level: "${state.toughness}".
+Your job right now is to test ONE specific claim the candidate made about themselves, probing for real specifics: situation, their exact actions, numbers/results, obstacles, and what they'd do differently. Ask like a real interviewer — natural, conversational, never robotic, never repeat the claim back verbatim as a question.
+
+Ask exactly ONE question per turn. Base every question on what the candidate just said (or, for the first question about a claim, on the claim itself) — never ask generic template questions. If their answer is vague, press for specifics. If their answer is strong and specific, either dig into a harder edge case or decide the claim has been sufficiently tested and move on.
+
+You must respond with ONLY strict JSON, no markdown fences, no preamble:
+{
+ "question": "the next interview question, in your voice, one to three sentences",
+ "moveToNextClaim": boolean (true if this claim has been adequately probed — usually after 2-4 exchanges — or the candidate's answer effectively resolved it),
+ "confidenceDelta": integer from -20 to 20 (how much this exchange should shift confidence in the candidate's ability to defend THIS claim; negative if they were vague/evasive/contradicted themselves, positive if specific and credible),
+ "note": "a short (<12 words) private coaching note about what was strong or weak in their last answer, or null if this is the opening question for a claim"
+}`;
+  }
+
+  function claudeMessagesFromTranscript(){
+    // Convert transcript into alternating user/assistant messages scoped to current claim context
+    return state.transcript
+      .filter(m => m.claimId === state.currentClaimId)
+      .map(m => ({ role: m.role === 'interviewer' ? 'assistant' : 'user', content: m.text }));
+  }
+
+  async function beginInterview(){
+    showView('interview');
+    renderExhibitList();
+    updateGauge();
+    renderTranscript();
+    if(!state.currentClaimId){
+      await advanceToNextClaim(true);
+    } else {
+      renderExhibitList();
+    }
+  }
+
+  async function advanceToNextClaim(isFirst=false){
+    const prevClaim = state.claims.find(c => c.id === state.currentClaimId);
+    if(prevClaim && prevClaim.status === 'active'){
+      prevClaim.status = prevClaim.confidence >= 60 ? 'solid' : 'weak';
+    }
+    const next = pickNextClaim();
+    if(!next){
+      state.currentClaimId = null;
+      saveState();
+      appendMessage({role:'interviewer', text:"That covers everything on the docket. When you're ready, end the session to see your Defense Report."});
+      state.transcript.push({role:'interviewer', text:"That covers everything on the docket. When you're ready, end the session to see your Defense Report.", claimId:null});
+      renderExhibitList(); updateGauge(); saveState();
+      return;
+    }
+    next.status = 'active';
+    state.currentClaimId = next.id;
+    renderExhibitList();
+
+    const idx = state.claims.indexOf(next);
+    const label = `EXHIBIT ${String.fromCharCode(65 + (idx % 26))}${idx>=26?Math.floor(idx/26):''}`;
+    const sysNote = document.createElement('div');
+    sysNote.className = 'system-note';
+    sysNote.textContent = `${label} — ${next.text}`;
+    chatScroll.appendChild(sysNote);
+
+    await requestNextQuestion(true);
+  }
+
+  async function requestNextQuestion(openingForClaim=false){
+    showTyping();
+    hideError();
+    sendBtn.disabled = true;
+
+    const claim = state.claims.find(c => c.id === state.currentClaimId);
+    const sys = buildInterviewSystemPrompt() + `\n\nThe claim under examination: "${claim.text}" (category: ${claim.category}, initial risk: ${claim.riskLevel}${claim.riskReason ? ', reason: ' + claim.riskReason : ''}).`;
+    const msgs = claudeMessagesFromTranscript();
+    const userMsgs = msgs.length ? msgs : [{ role:'user', content: `Begin examining this claim. Ask your opening question.` }];
+
+    try{
+      const res = await callClaude(userMsgs, sys, { jsonMode:true, retries:3 });
+      hideTyping();
+      appendMessage({role:'interviewer', text: res.question});
+      state.transcript.push({role:'interviewer', text: res.question, claimId: claim.id});
+      claim.exchangeCount++;
+
+      if(!openingForClaim && typeof res.confidenceDelta === 'number'){
+        claim.confidence = Math.max(0, Math.min(100, claim.confidence + res.confidenceDelta));
+      }
+      if(!openingForClaim && res.note){
+        const lastMsg = state.transcript.filter(m=>m.role==='candidate').slice(-1)[0];
+        if(lastMsg) lastMsg.note = res.note;
+        renderTranscript();
+      }
+      updateGauge();
+      saveState();
+
+      if(res.moveToNextClaim && !openingForClaim){
+        setTimeout(()=> advanceToNextClaim(), 500);
+      }
+    }catch(e){
+      hideTyping();
+      showError('The interviewer is momentarily unavailable (rate limit or connection issue).', ()=> requestNextQuestion(openingForClaim));
+    }finally{
+      sendBtn.disabled = false;
+    }
+  }
+
+  async function submitAnswer(){
+    const text = composerInput.value.trim();
+    if(!text || !state.currentClaimId) return;
+    composerInput.value = '';
+    autoGrow();
+    appendMessage({role:'candidate', text});
+    state.transcript.push({role:'candidate', text, claimId: state.currentClaimId});
+    saveState();
+    await requestNextQuestion(false);
+  }
+
+  sendBtn.addEventListener('click', submitAnswer);
+  composerInput.addEventListener('keydown', e=>{
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      submitAnswer();
+    }
+  });
+  function autoGrow(){
+    composerInput.style.height = 'auto';
+    composerInput.style.height = Math.min(composerInput.scrollHeight, 160) + 'px';
+  }
+  composerInput.addEventListener('input', autoGrow);
+
+  $('#endInterviewBtn').addEventListener('click', ()=>{
+    if(confirm('End this session and generate your Defense Report now?')) generateReport();
+  });
+
+  /* ============================================================
+     REPORT GENERATION
+  ============================================================ */
+  async function generateReport(){
+    showView('report');
+    $('#reportHeadline').textContent = 'Reviewing the transcript...';
+    $('#reportSummary').textContent = '';
+    $('#claimReportList').innerHTML = '<div class="empty-state"><h3>Deliberating</h3><p>Weighing every exchange against each claim...</p></div>';
+
+    const claimsForReport = state.claims.filter(c => c.exchangeCount > 0 || c.status !== 'pending');
+    const transcriptByClaimText = claimsForReport.map(c => {
+      const exchanges = state.transcript.filter(m => m.claimId === c.id)
+        .map(m => `${m.role === 'interviewer' ? 'Q' : 'A'}: ${m.text}`).join('\n');
+      return `CLAIM [${c.id}]: ${c.text}\nCurrent estimated confidence: ${c.confidence}%\nTranscript:\n${exchanges || '(not examined)'}`;
+    }).join('\n\n---\n\n');
+
+    const sys = `You are a senior interview coach producing a final "Defense Report" for a candidate who just rehearsed defending claims from their resume, in preparation for: "${state.audience}" at intensity "${state.toughness}".
+
+For each claim provided, judge how well the candidate defended it in the transcript. Respond with ONLY strict JSON, no markdown fences:
+{
+ "overallScore": integer 0-100 (holistic defense-readiness across all claims),
+ "headline": "one confident, specific sentence summarizing their overall readiness",
+ "summary": "two to three sentences of honest, constructive overall feedback",
+ "claims": [
+   {
+     "id": "matching claim id",
+     "verdict": one of "well-defended","needs-work","undefended",
+     "score": integer 0-100,
+     "feedback": "two to three specific sentences on what worked and what didn't in THEIR actual answers, referencing specifics from the transcript where possible",
+     "strongerVersion": "a rewritten, sharper way to state and defend this claim (STAR-style, concise, in first person) that they could use next time"
+   }
+ ]
+}`;
+
+    try{
+      const res = await callClaude(
+        [{ role:'user', content: transcriptByClaimText || 'No claims were examined in this session.' }],
+        sys, { jsonMode:true, retries:3 }
+      );
+      state.report = res;
+      state.finished = true;
+      tabs.report.disabled = false;
+      saveState();
+      renderReport(res);
+      pushHistory({
+        title: (state.resumeText.slice(0,40) || 'Case file') + '...',
+        date: new Date().toLocaleDateString(),
+        score: res.overallScore,
+        claimCount: claimsForReport.length
+      });
+    }catch(e){
+      $('#reportHeadline').textContent = 'Could not finalize the report';
+      $('#reportSummary').innerHTML = 'A temporary connection issue prevented us from generating your report.';
+      $('#claimReportList').innerHTML = `<div class="empty-state"><button class="btn" id="retryReportBtn">Try again</button></div>`;
+      const btn = document.getElementById('retryReportBtn');
+      if(btn) btn.addEventListener('click', generateReport);
+    }
+  }
+
+  function renderReport(res){
+    $('#reportScoreNum').textContent = res.overallScore;
+    const circumference = 414.7;
+    const offset = circumference - (circumference * Math.min(res.overallScore,100)/100);
+    $('#reportRing').style.strokeDashoffset = offset;
+    $('#reportRing').style.stroke = res.overallScore >= 65 ? '#2F5D50' : res.overallScore >= 40 ? '#93752E' : '#A24E3D';
+    $('#reportHeadline').textContent = res.headline || '';
+    $('#reportSummary').textContent = res.summary || '';
+
+    const wellCount = res.claims.filter(c=>c.verdict==='well-defended').length;
+    const weakCount = res.claims.filter(c=>c.verdict==='needs-work').length;
+    const undCount = res.claims.filter(c=>c.verdict==='undefended').length;
+    $('#countSolid').textContent = wellCount;
+    $('#countWeak').textContent = weakCount;
+    $('#countUndefended').textContent = undCount;
+
+    $('#claimReportList').innerHTML = res.claims.map(c => {
+      const original = state.claims.find(sc => sc.id === c.id);
+      return `<div class="claim-card">
+        <div class="claim-card-head">
+          <div class="txt">${escapeHtml(original ? original.text : c.id)}</div>
+          <div class="verdict-badge ${c.verdict}">${c.verdict.replace('-',' ')} &middot; ${c.score}</div>
+        </div>
+        <div class="claim-feedback">${escapeHtml(c.feedback)}</div>
+        <div class="stronger-version"><span class="lab">Sharper version to use next time</span>${escapeHtml(c.strongerVersion)}</div>
+      </div>`;
+    }).join('') || '<div class="empty-state"><h3>No exhibits were examined</h3><p>Start a new case and answer at least one question to generate a report.</p></div>';
+  }
+
+  $('#exportReportBtn').addEventListener('click', ()=>{
+    if(!state.report) return;
+    const lines = [];
+    lines.push('DEFEND YOUR EXPERIENCE — DEFENSE REPORT');
+    lines.push('Generated: ' + new Date().toLocaleString());
+    lines.push('Audience: ' + state.audience + ' | Intensity: ' + state.toughness);
+    lines.push('Overall readiness: ' + state.report.overallScore + '/100');
+    lines.push(state.report.headline);
+    lines.push(state.report.summary);
+    lines.push('');
+    state.report.claims.forEach(c=>{
+      const original = state.claims.find(sc => sc.id === c.id);
+      lines.push('---');
+      lines.push('CLAIM: ' + (original ? original.text : c.id));
+      lines.push('VERDICT: ' + c.verdict + ' (' + c.score + '/100)');
+      lines.push('FEEDBACK: ' + c.feedback);
+      lines.push('STRONGER VERSION: ' + c.strongerVersion);
+      lines.push('');
+    });
+    const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'defense-report.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  $('#printReportBtn').addEventListener('click', ()=> window.print());
+
+  $('#newCaseBtn').addEventListener('click', startNewCase);
+  $('#newSessionBtn').addEventListener('click', ()=>{
+    if(!state.started || confirm('Start a new case? Your current session progress will be cleared (finished sessions are saved to history).')) startNewCase();
+  });
+
+  function startNewCase(){
+    clearState();
+    state = { resumeText:'', audience: state.audience, toughness: state.toughness, claims:[], transcript:[], currentClaimId:null, claimsExamined:0, started:false, finished:false, report:null, createdAt:null };
+    uploadedText = '';
+    pasteText.value = '';
+    pasteArea.classList.remove('show');
+    tabs.interview.disabled = true;
+    tabs.report.disabled = true;
+    checkStartEnabled();
+    renderSessionHistory();
+    showView('upload');
+  }
+
+  /* ============================================================
+     UTIL
+  ============================================================ */
+  function escapeHtml(str){
+    if(str === null || str === undefined) return '';
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  function init(){
+    renderSessionHistory();
+    if(loadState() && state.started){
+      tabs.interview.disabled = false;
+      if(state.finished){
+        tabs.report.disabled = false;
+        renderReport(state.report);
+        showView('report');
+      } else {
+        showView('interview');
+        renderExhibitList();
+        updateGauge();
+        renderTranscript();
+      }
+    }
+  }
+  init();
+
+})();
+</script>
+</body>
+</html>
